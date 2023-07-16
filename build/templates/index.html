@@ -1,0 +1,218 @@
+<!-- index.html -->
+<!DOCTYPE html>
+<html>
+<head>
+    <title>REmetor</title>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+</head>
+<body>
+    <h1>REmetor</h1>
+<h2>Create Room</h2>
+<form id="create-room-form">
+    <label for="roomname">ルーム名:</label>
+    <input type="text" id="roomname" name="roomname" required><br>
+
+    <label for="description">説明:</label>
+    <input type="text" id="description" name="description" required><br>
+
+    <label for="hostname">ホスト名:</label>
+    <input type="text" id="hostname" name="hostname" required><br>
+
+    <label for="password">パスワード:</label>
+    <input type="password" id="password" name="password" required><br>
+
+    <input type="submit" value="作成">
+</form>
+
+<h2>アクションリストを取得</h2>
+<form id="get-actions-form">
+    <label for="room-id-actions">ルームID:</label>
+    <input type="text" id="room-id-actions" name="room_id" required><br>
+
+    <input type="submit" value="取得">
+</form>
+
+<h2>エモーションのサマリを取得</h2>
+<form id="get-summary-emotion-form">
+    <label for="room-id-emotion">ルームID:</label>
+    <input type="text" id="room-id-emotion" name="room_id" required><br>
+
+    <input type="submit" value="取得">
+</form>
+
+<h2>リアクションのサマリを取得</h2>
+<form id="get-summary-reaction-form">
+    <label for="room-id-reaction">ルームID:</label>
+    <input type="text" id="room-id-reaction" name="room_id" required><br>
+
+    <input type="submit" value="取得">
+</form>
+
+<button id="getEmotionGraphBtn">Get Emotion Graph</button>
+<button id="getReactionGraphBtn">Get Reaction Graph</button>
+<button id="getSummaryGraphBtn">Get Summary Graph</button>
+
+
+<script>
+    $(document).ready(function () {
+        // Create Roomフォームの送信処理
+        $('#create-room-form').submit(function (e) {
+            e.preventDefault();  // フォームのデフォルトの送信を防止
+            var data = {
+                "Roomname": $('#roomname').val(),
+                "Description": $('#description').val(),
+                "HostName": $('#hostname').val(),
+                "Password": $('#password').val(),
+                "id": generateRoomId()
+            };
+            $.ajax({
+                url: '/createRoom/',
+                type: 'POST',
+                data: JSON.stringify(data),
+                contentType: 'application/json',
+                success: function (response) {
+                    console.log(response);
+                    alert("ルームが正常に作成されました！");
+                },
+                error: function (xhr, status, error) {
+                    console.error(xhr.responseText);
+                    alert("ルームの作成中にエラーが発生しました。");
+                }
+            });
+        });
+
+        // Get Actions Listフォームの送信処理
+        $('#get-actions-form').submit(function (e) {
+            e.preventDefault();  // フォームのデフォルトの送信を防止
+            var room_id = $('#room-id-actions').val();
+            $.ajax({
+                url: '/getActionsList/?room_id=' + room_id,
+                type: 'GET',
+                contentType: 'application/json',
+                success: function (response) {
+                    console.log(response);
+                    alert("アクションリスト: " + JSON.stringify(response.items));
+                },
+                error: function (xhr, status, error) {
+                    console.error(xhr.responseText);
+                    alert("アクションリストの取得中にエラーが発生しました。");
+                }
+            });
+        });
+
+        // Get Summary Emotionフォームの送信処理
+        $('#get-summary-emotion-form').submit(function (e) {
+            e.preventDefault();  // フォームのデフォルトの送信を防止
+            var room_id = $('#room-id-emotion').val();
+            $.ajax({
+                url: '/getSummaryEmotion/?room_id=' + room_id,
+                type: 'GET',
+                contentType: 'application/json',
+                success: function (response) {
+                    console.log(response);
+                    alert("エモーションのサマリ: " + JSON.stringify(response.items));
+                },
+                error: function (xhr, status, error) {
+                    console.error(xhr.responseText);
+                    alert("エモーションのサマリの取得中にエラーが発生しました。");
+                }
+            });
+        });
+
+
+        // Get Summary Reactionフォームの送信処理
+        $('#get-summary-reaction-form').submit(function (e) {
+            e.preventDefault();  // フォームのデフォルトの送信を防止
+            var room_id = $('#room-id-reaction').val();
+            $.ajax({
+                url: '/getSummaryReaction/?room_id=' + room_id,
+                type: 'GET',
+                contentType: 'application/json',
+                success: function (response) {
+                    console.log(response);
+                    alert("リアクションのサマリ: " + JSON.stringify(response.items));
+                },
+                error: function (xhr, status, error) {
+                    console.error(xhr.responseText);
+                    alert("リアクションのサマリの取得中にエラーが発生しました。");
+                }
+            });
+        });
+
+        $(document).ready(function () {
+        // 既存のコード省略
+
+        // ページ読み込み時にサマリグラフを取得
+        getSummaryGraph();
+
+        function getSummaryGraph() {
+            $.ajax({
+                url: '/getSummaryGraph/',
+                type: 'GET',
+                contentType: 'application/json',
+                success: function (response) {
+                    console.log(response);
+                    $('#summary-graph').html(response.items);  // サマリグラフの表示
+                },
+                error: function (xhr, status, error) {
+                    console.error(xhr.responseText);
+                    alert("サマリグラフの取得中にエラーが発生しました。");
+                }
+            });
+        }
+    });
+
+        $(document).ready(function () {
+        // 既存のコード省略
+
+        // ページ読み込み時にサマリグラフを取得
+        getSummaryGraph();
+
+        // グラフ更新ボタンのクリックイベント
+        $('#refresh-graph-btn').click(function() {
+            getSummaryGraph();
+        });
+
+        function getSummaryGraph() {
+            $.ajax({
+                url: '/getSummaryGraph/',
+                type: 'GET',
+                contentType: 'application/json',
+                success: function (response) {
+                    console.log(response);
+                    $('#summary-graph').html(response.items);  // サマリグラフの表示
+                },
+                error: function (xhr, status, error) {
+                    console.error(xhr.responseText);
+                    alert("サマリグラフの取得中にエラーが発生しました。");
+                }
+            });
+        }
+    });
+    $(document).ready(function() {
+            $("#getEmotionGraphBtn").click(function() {
+                window.location.href = "/GetEmotionGraph/";
+            });
+
+            $("#getReactionGraphBtn").click(function() {
+                window.location.href = "/GetReactionGraph/";
+            });
+
+            $("#getSummaryGraphBtn").click(function() {
+                window.location.href = "/getSummaryGraph/";
+            });
+        });
+
+        // ランダムなルームIDを生成する関数
+        function generateRoomId() {
+            var characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+            var roomId = '';
+            for (var i = 0; i < 4; i++) {
+                roomId += characters.charAt(Math.floor(Math.random() * characters.length));
+            }
+            return roomId;
+        }
+    });
+</script>
+</body>
+</html>

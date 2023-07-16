@@ -1,0 +1,111 @@
+<!-- index.html -->
+
+<!DOCTYPE html>
+<html>
+<head>
+    <title>REmetor</title>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+</head>
+<body>
+    <h1>REmetor</h1>
+
+    <h2>Create Room</h2>
+    <form id="create-room-form">
+        <label for="roomname">Room Name:</label>
+        <input type="text" id="roomname" name="roomname" required><br>
+
+        <label for="description">Description:</label>
+        <input type="text" id="description" name="description" required><br>
+
+        <label for="hostname">Host Name:</label>
+        <input type="text" id="hostname" name="hostname" required><br>
+
+        <label for="password">Password:</label>
+        <input type="password" id="password" name="password" required><br>
+
+        <input type="submit" value="Create">
+    </form>
+
+    <h2>Get Actions List</h2>
+    <form id="get-actions-form">
+        <label for="room-id">Room ID:</label>
+        <input type="text" id="room-id" name="room_id" required><br>
+
+        <input type="submit" value="Get Actions">
+    </form>
+
+    <h2>Get Summary Emotion</h2>
+    <form id="get-summary-emotion-form">
+        <label for="room-id">Room ID:</label>
+        <input type="text" id="room-id" name="room_id" required><br>
+
+        <input type="submit" value="Get Summary Emotion">
+    </form>
+
+    <script>
+        $(document).ready(function () {
+            // Create Room form submission
+            $('#create-room-form').submit(function (e) {
+                e.preventDefault();  // Prevent form submission
+                var data = {
+                    "Roomname": $('#roomname').val(),
+                    "Description": $('#description').val(),
+                    "HostName": $('#hostname').val(),
+                    "Password": $('#password').val()
+                };
+                $.ajax({
+                    url: '/createRoom/',
+                    type: 'POST',
+                    data: JSON.stringify(data),
+                    contentType: 'application/json',
+                    success: function (response) {
+                        console.log(response);
+                        alert("ルーム作成成功！");
+                    },
+                    error: function (xhr, status, error) {
+                        console.error(xhr.responseText);
+                        alert("ルーム作成中にエラーが発生しました。");
+                    }
+                });
+            });
+
+            // Get Actions List form submission
+            $('#get-actions-form').submit(function (e) {
+                e.preventDefault();  // Prevent form submission
+                var room_id = $('#room-id').val();
+                $.ajax({
+                    url: '/getActionsList/?room_id=' + room_id,
+                    type: 'GET',
+                    contentType: 'application/json',
+                    success: function (response) {
+                        console.log(response);
+                        alert("Actions List: " + JSON.stringify(response.items));
+                    },
+                    error: function (xhr, status, error) {
+                        console.error(xhr.responseText);
+                        alert("Actions Listが手に入らなかった！えらー！");
+                    }
+                });
+            });
+            // Get Summary Emotion form submission
+            $('#get-summary-emotion-form').submit(function (e) {
+                e.preventDefault();  // Prevent form submission
+                var room_id = $('#room-id').val();
+                $.ajax({
+                    url: '/getSummaryEmotion/?room_id=' + room_id,
+                    type: 'GET',
+                    contentType: 'application/json',
+                    success: function (response) {
+                        console.log(response);
+                        alert("Summary Emotion: " + JSON.stringify(response.items));
+                    },
+                    error: function (xhr, status, error) {
+                        console.error(xhr.responseText);
+                        alert("えもーしょんを集計できなかった！えらー！");
+                    }
+                });
+            });
+        });
+    </script>
+</body>
+</html>

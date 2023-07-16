@@ -1,0 +1,6 @@
+plotly==4.14.3
+matplotlib==3.4.2
+Flask==2.0.1
+azure-cosmos==4.2.0
+flask-cors==3.0.10
+python-dotenv==0.17.1
